@@ -113,22 +113,22 @@ const API_SITES = {
     testSource: {
         api: 'https://www.example.com/api.php/provide/vod',
         name: '空内容测试源',
-        adult: true
+       
     },
    ftys: {
         api: 'https://www.fantuan.tv/api.php/provide/vod',
         name: '饭团影视',
-        adult: true
+        
     },
     ysgc: {
         api: 'https://cj.lziapi.com/api.php/provide/vod',
         name: '影视工厂',
-        adult: true
+      
     },
     ys77ys: {
         api: 'https://www.qiqidys.com/api.php/provide/vod',
         name: '77影视',
-        adult: true
+        
     },
     // 下面是一些成人内容的API源，默认隐藏，使用本项目浏览黄色内容违背项目初衷
     // 互联网上传播的色情内容将人彻底客体化、工具化，是性别解放和人类平等道路上的巨大障碍。
@@ -141,43 +141,42 @@ const API_SITES = {
    ckzy: {
      api: 'https://ckzy.me/api.php/provide/vod/',
         name: 'CK资源',
-         adult: true
+      
     },
      jkun: {
          api: 'https://jkunzyapi.com/api.php/provide/vod/',
        name: 'jkun资源',
-        adult: true
+      
     },
      bwzy: {
         api: 'https://api.bwzym3u8.com/api.php/provide/vod/',
         name: '百万资源',
-         adult: true
+      
      },
      souav: {
          api: 'https://api.souavzy.vip/api.php/provide/vod/',
          name: 'souav资源',
-         adult: true
+      
      },
      r155: {
          api: 'https://155api.com/api.php/provide/vod/',
         name: '155资源',
-         adult: true
+        
      },
      lsb: {
          api: 'https://apilsbzy1.com/api.php/provide/vod/',
          name: 'lsb资源',
-        adult: true
+       
      },
      huangcang: {
          api: 'https://hsckzy.vip/api.php/provide/vod/',
          name: 'HS仓库',
-         adult: true,
          detail: 'https://hsckzy.vip'
      },
      yutu: {
          api: 'https://yutuzy10.com/api.php/provide/vod/',
          name: '玉兔资源',
-         adult: true
+         
      },
 
     // 下面是资源失效率高的API源，不建议使用
