@@ -4,6 +4,119 @@ const PROXY_URL = '/proxy/';    // 适用于 Cloudflare, Netlify (带重写), Ve
 const SEARCH_HISTORY_KEY = 'videoSearchHistory';
 const MAX_HISTORY_ITEMS = 5;
 
+const IMAGE_PLACEHOLDER = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="450" viewBox="0 0 300 450">
+  <rect width="300" height="450" fill="#1f2937"/>
+  <rect x="70" y="120" width="160" height="210" rx="12" fill="#374151"/>
+  <path d="M105 280l42-54 34 42 18-23 36 45H105z" fill="#6b7280"/>
+  <circle cx="192" cy="178" r="20" fill="#6b7280"/>
+  <text x="150" y="370" text-anchor="middle" fill="#d1d5db" font-family="Arial, sans-serif" font-size="24">No Cover</text>
+</svg>`);
+
+function escapeAttr(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function getFirstImageCandidate(rawUrl) {
+    if (!rawUrl) return '';
+
+    let value = String(rawUrl)
+        .replace(/&amp;/g, '&')
+        .replace(/\\/g, '/')
+        .trim();
+
+    if (!value) return '';
+
+    const urlMatch = value.match(/https?:\/\/[^\s'",，；;|]+/i);
+    if (urlMatch) {
+        return urlMatch[0].trim();
+    }
+
+    const parts = value.split(/[,，;；|]/).map(part => part.trim()).filter(Boolean);
+    return (parts[0] || value).replace(/^['"]|['"]$/g, '');
+}
+
+function getImageBaseUrl(sourceCode = '', apiUrl = '') {
+    if (apiUrl) return apiUrl;
+    if (sourceCode && typeof API_SITES !== 'undefined' && API_SITES[sourceCode]?.api) {
+        return API_SITES[sourceCode].api;
+    }
+    return window.location.origin;
+}
+
+function normalizeImageUrl(rawUrl, sourceCode = '', apiUrl = '') {
+    const candidate = getFirstImageCandidate(rawUrl);
+    if (!candidate) return '';
+
+    if (/^(data|blob):/i.test(candidate)) {
+        return candidate;
+    }
+
+    if (candidate.startsWith('//')) {
+        return `${window.location.protocol === 'http:' ? 'http:' : 'https:'}${candidate}`;
+    }
+
+    if (/^https?:\/\//i.test(candidate)) {
+        return candidate;
+    }
+
+    const baseUrl = getImageBaseUrl(sourceCode, apiUrl);
+    try {
+        if (candidate.startsWith('/')) {
+            return new URL(candidate, new URL(baseUrl).origin).toString();
+        }
+
+        if (candidate.startsWith('./') || candidate.startsWith('../')) {
+            return new URL(candidate, baseUrl).toString();
+        }
+
+        return new URL(`/${candidate.replace(/^\/+/, '')}`, new URL(baseUrl).origin).toString();
+    } catch (error) {
+        return '';
+    }
+}
+
+function proxifyImageUrl(imageUrl) {
+    if (!imageUrl || /^(data|blob):/i.test(imageUrl)) return imageUrl || '';
+    if (imageUrl.startsWith(window.location.origin)) return imageUrl;
+    return PROXY_URL + encodeURIComponent(imageUrl);
+}
+
+function getPosterImageSources(rawUrl, sourceCode = '', apiUrl = '') {
+    const directUrl = normalizeImageUrl(rawUrl, sourceCode, apiUrl);
+    if (!directUrl) {
+        return { src: IMAGE_PLACEHOLDER, fallback: '' };
+    }
+
+    const proxiedUrl = proxifyImageUrl(directUrl);
+    const preferProxy = window.location.protocol === 'https:' && directUrl.startsWith('http://');
+
+    return {
+        src: preferProxy ? proxiedUrl : directUrl,
+        fallback: preferProxy ? directUrl : proxiedUrl
+    };
+}
+
+function handleImageFallback(img) {
+    if (!img) return;
+
+    const fallback = img.dataset ? img.dataset.fallbackSrc : '';
+    if (fallback && !img.dataset.fallbackTried && img.src !== fallback) {
+        img.dataset.fallbackTried = 'true';
+        img.src = fallback;
+        return;
+    }
+
+    img.onerror = null;
+    img.src = IMAGE_PLACEHOLDER;
+    img.classList.add('object-contain');
+}
+
 // 密码保护配置
 const PASSWORD_CONFIG = {
     localStorageKey: 'passwordVerified',  // 存储验证状态的键名

@@ -135,6 +135,17 @@ function getRandomUserAgent() {
     return USER_AGENTS[Math.floor(Math.random() * USER_AGENTS.length)];
 }
 
+function isTextLikeContent(targetUrl, contentType = '') {
+    const type = contentType.toLowerCase();
+    return type.startsWith('text/') ||
+        type.includes('json') ||
+        type.includes('xml') ||
+        type.includes('javascript') ||
+        type.includes('mpegurl') ||
+        type.includes('vnd.apple.mpegurl') ||
+        /\.m3u8($|\?)/i.test(targetUrl);
+}
+
 async function fetchContentWithType(targetUrl, requestHeaders) {
     // 准备请求头
     const headers = {
@@ -163,9 +174,10 @@ async function fetchContentWithType(targetUrl, requestHeaders) {
             throw err; // 抛出错误
         }
 
-        // 读取响应内容
-        const content = await response.text();
         const contentType = response.headers.get('content-type') || '';
+        const content = isTextLikeContent(targetUrl, contentType)
+            ? await response.text()
+            : Buffer.from(await response.arrayBuffer());
         logDebug(`请求成功: ${targetUrl}, Content-Type: ${contentType}, 内容长度: ${content.length}`);
         // 返回结果
         return { content, contentType, responseHeaders: response.headers };

@@ -148,13 +148,17 @@ app.get('/proxy/:encodedUrl', async (req, res) => {
     
     const makeRequest = async () => {
       try {
+        const targetOrigin = new URL(targetUrl).origin;
         return await axios({
           method: 'get',
           url: targetUrl,
           responseType: 'stream',
           timeout: config.timeout,
           headers: {
-            'User-Agent': config.userAgent
+            'User-Agent': config.userAgent,
+            'Accept': req.headers.accept || '*/*',
+            'Accept-Language': req.headers['accept-language'] || 'zh-CN,zh;q=0.9,en;q=0.8',
+            'Referer': req.headers.referer || targetOrigin
           }
         });
       } catch (error) {

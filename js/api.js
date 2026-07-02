@@ -51,6 +51,7 @@ async function handleApiRequest(url) {
                 data.list.forEach(item => {
                     item.source_name = source === 'custom' ? '自定义源' : API_SITES[source].name;
                     item.source_code = source;
+                    item.source_api_url = source === 'custom' ? customApi : API_SITES[source].api;
                     // 对于自定义源，添加API URL信息
                     if (source === 'custom') {
                         item.api_url = customApi;

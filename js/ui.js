@@ -104,6 +104,25 @@ function showLoading(message = '加载中...') {
     }, 30000);
 }
 
+function waitForNextPaint() {
+    return new Promise(resolve => {
+        let resolved = false;
+        const done = () => {
+            if (resolved) return;
+            resolved = true;
+            resolve();
+        };
+
+        setTimeout(done, 32);
+
+        if (window.requestAnimationFrame) {
+            window.requestAnimationFrame(() => window.requestAnimationFrame(done));
+        } else {
+            setTimeout(done, 0);
+        }
+    });
+}
+
 function hideLoading() {
     // 清除超时
     if (loadingTimeoutId) {

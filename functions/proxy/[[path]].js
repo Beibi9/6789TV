@@ -172,6 +172,17 @@ export async function onRequest(context) {
         return `/proxy/${encodeURIComponent(targetUrl)}`;
     }
 
+    function isTextLikeContent(targetUrl, contentType = '') {
+        const type = contentType.toLowerCase();
+        return type.startsWith('text/') ||
+            type.includes('json') ||
+            type.includes('xml') ||
+            type.includes('javascript') ||
+            type.includes('mpegurl') ||
+            type.includes('vnd.apple.mpegurl') ||
+            /\.m3u8($|\?)/i.test(targetUrl);
+    }
+
     // 获取远程内容及其类型
     async function fetchContentWithType(targetUrl) {
         const headers = new Headers({
@@ -195,10 +206,12 @@ export async function onRequest(context) {
                  throw new Error(`HTTP error ${response.status}: ${response.statusText}. URL: ${targetUrl}. Body: ${errorBody.substring(0, 150)}`);
             }
 
-            // 读取响应内容为文本
-            const content = await response.text();
             const contentType = response.headers.get('Content-Type') || '';
-            logDebug(`请求成功: ${targetUrl}, Content-Type: ${contentType}, 内容长度: ${content.length}`);
+            const content = isTextLikeContent(targetUrl, contentType)
+                ? await response.text()
+                : await response.arrayBuffer();
+            const contentLength = typeof content === 'string' ? content.length : content.byteLength;
+            logDebug(`请求成功: ${targetUrl}, Content-Type: ${contentType}, 内容长度: ${contentLength}`);
             return { content, contentType, responseHeaders: response.headers }; // 同时返回原始响应头
 
         } catch (error) {
@@ -468,7 +481,7 @@ export async function onRequest(context) {
         const { content, contentType, responseHeaders } = await fetchContentWithType(targetUrl);
 
         // --- 写入缓存 (KV) ---
-        if (kvNamespace) {
+        if (kvNamespace && typeof content === 'string') {
              try {
                  const headersToCache = {};
                  responseHeaders.forEach((value, key) => { headersToCache[key.toLowerCase()] = value; });
@@ -479,7 +492,9 @@ export async function onRequest(context) {
             } catch (kvError) {
                  logDebug(`向 KV 写入缓存失败 (${cacheKey}): ${kvError.message}`);
                  // 写入失败不影响返回结果
-            }
+             }
+        } else if (kvNamespace) {
+             logDebug(`跳过二进制内容缓存: ${targetUrl}`);
         }
 
         // --- 处理响应 ---

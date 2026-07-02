@@ -1,4 +1,4 @@
-async function searchByAPIAndKeyWord(apiId, query) {
+async function searchByAPIAndKeyWord(apiId, query, options = {}) {
     try {
         let apiUrl, apiName, apiBaseUrl;
         
@@ -45,8 +45,10 @@ async function searchByAPIAndKeyWord(apiId, query) {
             ...item,
             source_name: apiName,
             source_code: apiId,
+            source_api_url: apiBaseUrl,
             api_url: apiId.startsWith('custom_') ? getCustomApiInfo(apiId.replace('custom_', ''))?.url : undefined
         }));
+        options.onPageResults?.(results, { apiId, page: 1, apiName });
         
         // 获取总页数
         const pageCount = data.pagecount || 1;
@@ -83,12 +85,15 @@ async function searchByAPIAndKeyWord(apiId, query) {
                         if (!pageData || !pageData.list || !Array.isArray(pageData.list)) return [];
                         
                         // 处理当前页结果
-                        return pageData.list.map(item => ({
+                        const pageResults = pageData.list.map(item => ({
                             ...item,
                             source_name: apiName,
                             source_code: apiId,
+                            source_api_url: apiBaseUrl,
                             api_url: apiId.startsWith('custom_') ? getCustomApiInfo(apiId.replace('custom_', ''))?.url : undefined
                         }));
+                        options.onPageResults?.(pageResults, { apiId, page, apiName });
+                        return pageResults;
                     } catch (error) {
                         console.warn(`API ${apiId} 第${page}页搜索失败:`, error);
                         return [];

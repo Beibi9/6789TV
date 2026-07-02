@@ -86,6 +86,17 @@ function rewriteUrlToProxy(targetUrl) {
 
 function getRandomUserAgent() { return USER_AGENTS[Math.floor(Math.random() * USER_AGENTS.length)]; }
 
+function isTextLikeContent(targetUrl, contentType = '') {
+    const type = contentType.toLowerCase();
+    return type.startsWith('text/') ||
+        type.includes('json') ||
+        type.includes('xml') ||
+        type.includes('javascript') ||
+        type.includes('mpegurl') ||
+        type.includes('vnd.apple.mpegurl') ||
+        /\.m3u8($|\?)/i.test(targetUrl);
+}
+
 async function fetchContentWithType(targetUrl, requestHeaders) {
     const headers = {
         'User-Agent': getRandomUserAgent(),
@@ -103,8 +114,10 @@ async function fetchContentWithType(targetUrl, requestHeaders) {
             const err = new Error(`HTTP error ${response.status}: ${response.statusText}. URL: ${targetUrl}. Body: ${errorBody.substring(0, 200)}`);
             err.status = response.status; throw err;
         }
-        const content = await response.text();
         const contentType = response.headers.get('content-type') || '';
+        const content = isTextLikeContent(targetUrl, contentType)
+            ? await response.text()
+            : Buffer.from(await response.arrayBuffer());
         logDebug(`Fetch success: ${targetUrl}, Content-Type: ${contentType}, Length: ${content.length}`);
         return { content, contentType, responseHeaders: response.headers };
     } catch (error) {
@@ -250,8 +263,8 @@ export const handler = async (event, context) => {
             return {
                 statusCode: 200,
                 headers: netlifyHeaders,
-                body: content, // Body as string
-                // isBase64Encoded: false, // Set true only if returning binary data as base64
+                body: Buffer.isBuffer(content) ? content.toString('base64') : content,
+                isBase64Encoded: Buffer.isBuffer(content),
             };
         }
 
