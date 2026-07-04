@@ -67,6 +67,19 @@ Pull Bot 会反复触发无效的 PR 和垃圾邮件，严重干扰项目维护�
 
 ## 📋 详细部署指南
 
+### Cloudflare Workers（GitHub 部署）
+
+1. Fork 或克隆本仓库到您的 GitHub 账户
+2. 登录 [Cloudflare Dashboard](https://dash.cloudflare.com/)，进入 Workers & Pages
+3. 创建 Worker，并连接您的 GitHub 仓库
+4. 使用以下设置：
+   - 构建命令：留空
+   - 部署命令：`npx wrangler deploy`
+5. `wrangler.jsonc` 已经配置好静态资源目录和 Worker 入口，部署时不会上传 `node_modules`
+6. **⚠️ 重要：在"设置" > "环境变量"中添加 `PASSWORD` 变量**
+7. **可选：在"Settings" > "Environment Variables"中添加 `ADMINPASSWORD` 变量**
+8. 点击"保存并部署"
+
 ### Cloudflare Pages
 
 1. Fork 或克隆本仓库到您的 GitHub 账户
@@ -75,8 +88,8 @@ Pull Bot 会反复触发无效的 PR 和垃圾邮件，严重干扰项目维护�
 4. 使用以下设置：
    - 构建命令：`npm run build`
    - 输出目录：`dist`
-   - 部署命令：留空（不要使用 `npx wrangler deploy`）
-5. 如果使用 Wrangler 手动上传，运行：`npm run deploy`
+   - 部署命令：留空
+5. 如果使用 Wrangler 手动上传 Pages，运行：`npm run pages:deploy`
 6. **⚠️ 重要：在"设置" > "环境变量"中添加 `PASSWORD` 变量**
 7. **可选：在"Settings" > "Environment Variables"中添加 `ADMINPASSWORD` 变量**
 8. 点击"保存并部署"

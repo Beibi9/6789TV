@@ -8,8 +8,10 @@
   "license": "Apache-2.0",
   "scripts": {
     "build": "node scripts/build-pages.mjs",
-    "deploy": "npm run build && npx wrangler pages deploy dist --project-name=6789tvv",
-    "preview": "npm run build && npx wrangler pages dev dist",
+    "deploy": "npx wrangler deploy",
+    "preview": "npx wrangler dev",
+    "pages:deploy": "npm run build && npx wrangler pages deploy dist --project-name=6789tv1",
+    "pages:preview": "npm run build && npx wrangler pages dev dist",
     "dev": "nodemon server.mjs",
     "start": "node server.mjs"
   },

@@ -12,6 +12,8 @@ dist
 dist-ssr
 coverage
 *.local
+.wrangler/
+.wrangler-dry-run/
 
 # Editor directories and files
 .vscode/*
