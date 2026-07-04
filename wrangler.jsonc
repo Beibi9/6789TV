@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "6789tv1",
+  "name": "6789tv2",
   "main": "worker/index.js",
   "compatibility_date": "2026-07-04",
   "keep_vars": true,
