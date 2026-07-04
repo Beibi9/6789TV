@@ -73,11 +73,13 @@ Pull Bot 会反复触发无效的 PR 和垃圾邮件，严重干扰项目维护�
 2. 登录 [Cloudflare Dashboard](https://dash.cloudflare.com/)，进入 Pages 服务
 3. 点击"创建项目"，连接您的 GitHub 仓库
 4. 使用以下设置：
-   - 构建命令：留空（无需构建）
-   - 输出目录：留空（默认为根目录）
-5. **⚠️ 重要：在"设置" > "环境变量"中添加 `PASSWORD` 变量**
-6. **可选：在"Settings" > "Environment Variables"中添加 `ADMINPASSWORD` 变量**
-7. 点击"保存并部署"
+   - 构建命令：`npm run build`
+   - 输出目录：`dist`
+   - 部署命令：留空（不要使用 `npx wrangler deploy`）
+5. 如果使用 Wrangler 手动上传，运行：`npm run deploy`
+6. **⚠️ 重要：在"设置" > "环境变量"中添加 `PASSWORD` 变量**
+7. **可选：在"Settings" > "Environment Variables"中添加 `ADMINPASSWORD` 变量**
+8. 点击"保存并部署"
 
 ### Vercel
 
