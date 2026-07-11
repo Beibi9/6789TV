@@ -596,11 +596,11 @@ function resetSearchArea() {
     try {
         window.history.pushState(
             {},
-            `LibreTV - 免费在线视频搜索与观看平台`,
+            `6789TV - 免费在线视频搜索与观看平台`,
             `/`
         );
         // 更新页面标题
-        document.title = `LibreTV - 免费在线视频搜索与观看平台`;
+        document.title = `6789TV - 免费在线视频搜索与观看平台`;
     } catch (e) {
         console.error('更新浏览器历史失败:', e);
     }
@@ -842,10 +842,10 @@ async function search() {
             const encodedQuery = encodeURIComponent(query);
             window.history.pushState(
                 { search: query },
-                `搜索: ${query} - LibreTV`,
+                `搜索: ${query} - 6789TV`,
                 `/s=${encodedQuery}`
             );
-            document.title = `搜索: ${query} - LibreTV`;
+            document.title = `搜索: ${query} - 6789TV`;
         } catch (e) {
             console.error('更新浏览器历史失败:', e);
         }
